@@ -72,7 +72,10 @@ function onFileChange(event) {
 }
 
 function refreshScaleAndPosition() {
+    console.log("calling refresh scale thing");
+    
     if (loadedObject) {
+        console.log("yes entered");
         // Calculate the bounding box of the loaded object
         const box = new THREE.Box3().setFromObject(loadedObject);
         const boxHeight = box.max.y - box.min.y;
