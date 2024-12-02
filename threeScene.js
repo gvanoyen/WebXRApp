@@ -37,6 +37,8 @@ function init() {
 
     const fileInput = document.getElementById('fileInput');
     fileInput.addEventListener('change', onFileChange, false);
+
+    renderer.xr.addEventListener('sessionstart', refreshScaleAndPosition);
 }
 
 function onWindowResize() {
@@ -62,27 +64,31 @@ function onFileChange(event) {
                     child.material.map.format = THREE.RGBAFormat;
                 }
             });
-
-            // Calculate the bounding box of the loaded object
-            const box = new THREE.Box3().setFromObject(loadedObject);
-            const boxHeight = box.max.y - box.min.y;
-
-            // Get the height of the camera
-            const cameraHeight = camera.position.y;
-
-            // Calculate the scale factor to match the height of the camera
-            const scaleFactor = cameraHeight / boxHeight;
-
-            // Apply the scale factor to the loaded object
-            loadedObject.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
-            // Center the object
-            const boxCenter = box.getCenter(new THREE.Vector3());
-            loadedObject.position.sub(boxCenter);
-
             scene.add(loadedObject);
+            refreshScaleAndPosition();
         };
         reader.readAsText(file);
+    }
+}
+
+function refreshScaleAndPosition() {
+    if (loadedObject) {
+        // Calculate the bounding box of the loaded object
+        const box = new THREE.Box3().setFromObject(loadedObject);
+        const boxHeight = box.max.y - box.min.y;
+
+        // Get the height of the camera
+        const cameraHeight = camera.position.y;
+
+        // Calculate the scale factor to match the height of the camera
+        const scaleFactor = cameraHeight / boxHeight;
+
+        // Apply the scale factor to the loaded object
+        loadedObject.scale.set(scaleFactor, scaleFactor, scaleFactor);
+
+        // Center the object
+        const boxCenter = box.getCenter(new THREE.Vector3());
+        loadedObject.position.sub(boxCenter);
     }
 }
 
