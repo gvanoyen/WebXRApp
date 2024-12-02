@@ -1,8 +1,7 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js";
-import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/loaders/OBJLoader.js';
 import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/webxr/ARButton.js';
 
-let scene, camera, renderer, controller1, controller2, box;
+let scene, camera, renderer, controller1, controller2, box, sphere1, sphere2;
 
 function init() {
     scene = new THREE.Scene();
@@ -24,6 +23,13 @@ function init() {
     const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     box = new THREE.Mesh(geometry, material);
     scene.add(box);
+
+    const sphereGeometry = new THREE.SphereGeometry(0.05, 32, 32);
+    const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+    sphere1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    sphere2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    scene.add(sphere1);
+    scene.add(sphere2);
 
     controller1 = renderer.xr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
@@ -76,6 +82,8 @@ function animate() {
 }
 
 function render() {
+    sphere1.position.copy(controller1.position);
+    sphere2.position.copy(controller2.position);
     renderer.render(scene, camera);
 }
 
