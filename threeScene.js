@@ -63,7 +63,7 @@ function onFileChange(event) {
                 }
             });
             // Set the default scale for the loaded object
-            loadedObject.scale.set(0.01, 0.01, 0.01); // Adjust the scale factor as needed
+            loadedObject.scale.set(0.0001, 0.0001, 0.0001); // Adjust the scale factor as needed
             scene.add(loadedObject);
         };
         reader.readAsText(file);
