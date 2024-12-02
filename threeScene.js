@@ -5,6 +5,7 @@ import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js
 let camera, scene, renderer;
 let controller;
 let loadedObject;
+let joystickIndicator;
 
 init();
 animate();
@@ -33,6 +34,13 @@ function init() {
     controller.addEventListener('select', onSelect);
     scene.add(controller);
 
+    // Create a visual indicator for joystick input
+    const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    joystickIndicator = new THREE.Mesh(geometry, material);
+    joystickIndicator.position.set(0, 0, -0.5);
+    scene.add(joystickIndicator);
+
     window.addEventListener('resize', onWindowResize, false);
 
     const fileInput = document.getElementById('fileInput');
@@ -50,7 +58,7 @@ function onSelect() {
     if (loadedObject) {
         const gamepad = controller.gamepad;
         if (gamepad) {
-            const scaleChange = gamepad.axes[1] * 0.1; // Adjust the scale factor as needed
+            const scaleChange = gamepad.axes[3] * 0.01; // Adjust the scale factor as needed
             loadedObject.scale.x += scaleChange;
             loadedObject.scale.y += scaleChange;
             loadedObject.scale.z += scaleChange;
@@ -84,5 +92,11 @@ function animate() {
 }
 
 function render() {
+    if (controller && controller.gamepad) {
+        const gamepad = controller.gamepad;
+        // Update the visual indicator based on joystick input
+        joystickIndicator.position.x = gamepad.axes[3] * 0.5;
+        joystickIndicator.position.y = gamepad.axes[4] * 0.5;
+    }
     renderer.render(scene, camera);
 }
