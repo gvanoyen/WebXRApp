@@ -3,6 +3,7 @@ import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/j
 import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/webxr/ARButton.js';
 
 let scene, camera, renderer, controller1, controller2, object;
+let scale = 1;
 
 function init() {
     scene = new THREE.Scene();
@@ -93,8 +94,21 @@ function animate() {
 
 function render() {
     if (object) {
-        const scale = 1 + controller1.position.y * 0.1;
-        object.scale.set(scale, scale, scale);
+        const session = renderer.xr.getSession();
+        if (session) {
+            const inputSources = session.inputSources;
+            for (const inputSource of inputSources) {
+                if (inputSource.gamepad) {
+                    const axes = inputSource.gamepad.axes;
+                    if (axes.length > 2) {
+                        const scaleChange = axes[1] * 0.1;
+                        scale += scaleChange;
+                        scale = Math.max(0.1, Math.min(10, scale)); // Clamp scale between 0.1 and 10
+                        object.scale.set(scale, scale, scale);
+                    }
+                }
+            }
+        }
     }
     renderer.render(scene, camera);
 }
