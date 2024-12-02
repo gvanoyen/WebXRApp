@@ -4,6 +4,7 @@ import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js
 
 let scene, camera, renderer, controller1, controller2, object;
 let scale = 1;
+let sphere1, sphere2;
 
 function init() {
     scene = new THREE.Scene();
@@ -30,6 +31,15 @@ function init() {
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
     scene.add(controller2);
+
+    const sphereGeometry = new THREE.SphereGeometry(0.05, 32, 32);
+    const blueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+    const greenMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+
+    sphere1 = new THREE.Mesh(sphereGeometry, blueMaterial);
+    sphere2 = new THREE.Mesh(sphereGeometry, blueMaterial);
+    scene.add(sphere1);
+    scene.add(sphere2);
 
     window.addEventListener('resize', onWindowResize, false);
 
@@ -64,11 +74,31 @@ function onSelectStart(event) {
         object.position.copy(intersection.point);
         object.attach(controller);
     }
+
+    // Shrink the object to half its size
+    if (object) {
+        scale *= 0.5;
+        object.scale.set(scale, scale, scale);
+    }
+
+    // Change sphere color to green
+    if (controller === controller1) {
+        sphere1.material.color.set(0x00ff00);
+    } else if (controller === controller2) {
+        sphere2.material.color.set(0x00ff00);
+    }
 }
 
 function onSelectEnd(event) {
     const controller = event.target;
     object.detach(controller);
+
+    // Change sphere color back to blue
+    if (controller === controller1) {
+        sphere1.material.color.set(0x0000ff);
+    } else if (controller === controller2) {
+        sphere2.material.color.set(0x0000ff);
+    }
 }
 
 function getIntersections(controller) {
@@ -110,6 +140,11 @@ function render() {
             }
         }
     }
+
+    // Update sphere positions
+    sphere1.position.copy(controller1.position);
+    sphere2.position.copy(controller2.position);
+
     renderer.render(scene, camera);
 }
 
