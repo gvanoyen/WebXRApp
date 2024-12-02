@@ -62,6 +62,20 @@ function onFileChange(event) {
                     child.material.map.format = THREE.RGBAFormat;
                 }
             });
+
+            // Calculate the bounding box of the loaded object
+            const box = new THREE.Box3().setFromObject(loadedObject);
+            const boxHeight = box.max.y - box.min.y;
+
+            // Get the height of the camera
+            const cameraHeight = camera.position.y;
+
+            // Calculate the scale factor to match the height of the camera
+            const scaleFactor = cameraHeight / boxHeight;
+
+            // Apply the scale factor to the loaded object
+            loadedObject.scale.set(scaleFactor, scaleFactor, scaleFactor);
+
             scene.add(loadedObject);
         };
         reader.readAsText(file);
@@ -73,12 +87,5 @@ function animate() {
 }
 
 function render() {
-    if (controller && controller.gamepad) {
-        const axes = controller.gamepad.axes;
-        if (loadedObject) {
-            const scale = 1 + axes[1] * 0.5; // Adjust the scale factor as needed
-            loadedObject.scale.set(scale, scale, scale);
-        }
-    }
     renderer.render(scene, camera);
 }
