@@ -62,20 +62,8 @@ function onFileChange(event) {
                     child.material.map.format = THREE.RGBAFormat;
                 }
             });
-
-            // Calculate the bounding box of the loaded object
-            const box = new THREE.Box3().setFromObject(loadedObject);
-            const boxHeight = box.max.y - box.min.y;
-
-            // Get the height of the camera
-            const cameraHeight = camera.position.y;
-
-            // Calculate the scale factor to match the height of the camera
-            const scaleFactor = cameraHeight / boxHeight;
-
-            // Apply the scale factor to the loaded object
-            loadedObject.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
+            // Set the default scale for the loaded object
+            loadedObject.scale.set(0.1, 0.1, 0.1); // Adjust the scale factor as needed
             scene.add(loadedObject);
         };
         reader.readAsText(file);
