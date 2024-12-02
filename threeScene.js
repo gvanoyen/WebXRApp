@@ -95,8 +95,8 @@ function render() {
     if (controller && controller.gamepad) {
         const gamepad = controller.gamepad;
         // Update the visual indicator based on joystick input
-        joystickIndicator.position.x = gamepad.axes[3] * 0.5;
-        joystickIndicator.position.y = gamepad.axes[4] * 0.5;
+        joystickIndicator.position.x = gamepad.axes[0] * 0.5;
+        joystickIndicator.position.y = gamepad.axes[1] * 0.5;
     }
     renderer.render(scene, camera);
 }
