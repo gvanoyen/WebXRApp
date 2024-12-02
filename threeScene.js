@@ -76,7 +76,7 @@ function render() {
     if (controller && controller.gamepad) {
         const axes = controller.gamepad.axes;
         if (loadedObject) {
-            const scale = 1 + axes[1] * 0.1; // Adjust the scale factor as needed
+            const scale = 1 + axes[1] * 0.5; // Adjust the scale factor as needed
             loadedObject.scale.set(scale, scale, scale);
         }
     }
