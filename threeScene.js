@@ -50,7 +50,7 @@ function onSelect() {
 
 function onFileChange(event) {
     const file = event.target.files[0];
-    if (file) {
+    if (file && file.name.endsWith('.txt')) {
         const reader = new FileReader();
         reader.onload = function (e) {
             const contents = e.target.result;
@@ -74,5 +74,3 @@ function animate() {
 function render() {
     renderer.render(scene, camera);
 }
-
-
