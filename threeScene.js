@@ -5,7 +5,7 @@ import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js
 let camera, scene, renderer;
 let controller;
 let loadedObject;
-let joystickInfo;
+let joystickIndicator;
 
 init();
 animate();
@@ -34,16 +34,12 @@ function init() {
     controller.addEventListener('select', onSelect);
     scene.add(controller);
 
-    joystickInfo = document.createElement('div');
-    joystickInfo.style.position = 'absolute';
-    joystickInfo.style.top = '10px';
-    joystickInfo.style.left = '10px';
-    joystickInfo.style.color = 'white';
-    joystickInfo.style.fontSize = '20px';
-    joystickInfo.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-    joystickInfo.style.padding = '10px';
-    joystickInfo.style.zIndex = '1000';
-    document.body.appendChild(joystickInfo);
+    // Create a visual indicator for joystick input
+    const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    joystickIndicator = new THREE.Mesh(geometry, material);
+    joystickIndicator.position.set(0, 0, -0.5);
+    scene.add(joystickIndicator);
 
     window.addEventListener('resize', onWindowResize, false);
 
@@ -98,7 +94,9 @@ function animate() {
 function render() {
     if (controller && controller.gamepad) {
         const gamepad = controller.gamepad;
-        joystickInfo.innerHTML = `Joystick X: ${gamepad.axes[0].toFixed(2)}<br>Joystick Y: ${gamepad.axes[1].toFixed(2)}`;
+        // Update the visual indicator based on joystick input
+        joystickIndicator.position.x = gamepad.axes[0] * 0.5;
+        joystickIndicator.position.y = gamepad.axes[1] * 0.5;
     }
     renderer.render(scene, camera);
 }
