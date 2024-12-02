@@ -4,6 +4,7 @@ import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js
 
 let camera, scene, renderer;
 let controller;
+let loadedObject;
 
 init();
 animate();
@@ -30,6 +31,7 @@ function init() {
 
     controller = renderer.xr.getController(0);
     controller.addEventListener('select', onSelect);
+    controller.addEventListener('connected', onControllerConnected);
     scene.add(controller);
 
     window.addEventListener('resize', onWindowResize, false);
@@ -48,6 +50,21 @@ function onSelect() {
     // Handle object selection
 }
 
+function onControllerConnected(event) {
+    const gamepad = event.data.gamepad;
+    if (gamepad) {
+        gamepad.addEventListener('axeschange', onThumbstickMove);
+    }
+}
+
+function onThumbstickMove(event) {
+    const axes = event.target.axes;
+    if (loadedObject) {
+        const scale = 1 + axes[1] * 0.1; // Adjust the scale factor as needed
+        loadedObject.scale.set(scale, scale, scale);
+    }
+}
+
 function onFileChange(event) {
     const file = event.target.files[0];
     if (file && file.name.endsWith('.txt')) {
@@ -55,13 +72,13 @@ function onFileChange(event) {
         reader.onload = function (e) {
             const contents = e.target.result;
             const loader = new OBJLoader();
-            const object = loader.parse(contents);
-            object.traverse(function (child) {
+            loadedObject = loader.parse(contents);
+            loadedObject.traverse(function (child) {
                 if (child.isMesh && child.material.map) {
                     child.material.map.format = THREE.RGBAFormat;
                 }
             });
-            scene.add(object);
+            scene.add(loadedObject);
         };
         reader.readAsText(file);
     }
