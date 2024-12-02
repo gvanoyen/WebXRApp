@@ -1,17 +1,27 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js";
+import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/loaders/OBJLoader.js';
 import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/webxr/ARButton.js';
 
-let scene, camera, renderer, controller1, controller2, box, sphere1, sphere2;
+let camera, scene, renderer;
+let controller;
+let loadedObject;
+
+init();
+animate();
 
 function init() {
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 10);
-    camera.position.z = 1;
+
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.xr.enabled = true;
-    document.body.appendChild(renderer.domElement);
+    container.appendChild(renderer.domElement);
 
     document.body.appendChild(ARButton.createButton(renderer));
 
@@ -19,56 +29,14 @@ function init() {
     light.position.set(0.5, 1, 0.25);
     scene.add(light);
 
-    const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    box = new THREE.Mesh(geometry, material);
-    scene.add(box);
-
-    const sphereGeometry = new THREE.SphereGeometry(0.05, 32, 32);
-    const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-    sphere1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    sphere2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    scene.add(sphere1);
-    scene.add(sphere2);
-
-    controller1 = renderer.xr.getController(0);
-    controller1.addEventListener('selectstart', onSelectStart);
-    controller1.addEventListener('selectend', onSelectEnd);
-    scene.add(controller1);
-
-    controller2 = renderer.xr.getController(1);
-    controller2.addEventListener('selectstart', onSelectStart);
-    controller2.addEventListener('selectend', onSelectEnd);
-    scene.add(controller2);
+    controller = renderer.xr.getController(0);
+    controller.addEventListener('select', onSelect);
+    scene.add(controller);
 
     window.addEventListener('resize', onWindowResize, false);
-}
 
-function onSelectStart(event) {
-    const controller = event.target;
-    const intersections = getIntersections(controller);
-
-    if (intersections.length > 0) {
-        const intersection = intersections[0];
-        box.position.copy(intersection.point);
-        box.attach(controller);
-    }
-}
-
-function onSelectEnd(event) {
-    const controller = event.target;
-    box.detach(controller);
-}
-
-function getIntersections(controller) {
-    const tempMatrix = new THREE.Matrix4();
-    tempMatrix.identity().extractRotation(controller.matrixWorld);
-
-    const raycaster = new THREE.Raycaster();
-    raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-    raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-
-    return raycaster.intersectObject(box);
+    const fileInput = document.getElementById('fileInput');
+    fileInput.addEventListener('change', onFileChange, false);
 }
 
 function onWindowResize() {
@@ -77,15 +45,44 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+function onSelect() {
+    // Handle object selection
+    if (loadedObject) {
+        const gamepad = controller.gamepad;
+        if (gamepad) {
+            const scaleChange = gamepad.axes[1] * 0.1; // Adjust the scale factor as needed
+            loadedObject.scale.x += scaleChange;
+            loadedObject.scale.y += scaleChange;
+            loadedObject.scale.z += scaleChange;
+        }
+    }
+}
+
+function onFileChange(event) {
+    const file = event.target.files[0];
+    if (file && file.name.endsWith('.txt')) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const contents = e.target.result;
+            const loader = new OBJLoader();
+            loadedObject = loader.parse(contents);
+            loadedObject.traverse(function (child) {
+                if (child.isMesh && child.material.map) {
+                    child.material.map.format = THREE.RGBAFormat;
+                }
+            });
+            // Set the default scale for the loaded object
+            loadedObject.scale.set(0.1, 0.1, 0.1); // Adjust the scale factor as needed
+            scene.add(loadedObject);
+        };
+        reader.readAsText(file);
+    }
+}
+
 function animate() {
     renderer.setAnimationLoop(render);
 }
 
 function render() {
-    sphere1.position.copy(controller1.position);
-    sphere2.position.copy(controller2.position);
     renderer.render(scene, camera);
 }
-
-init();
-animate();
