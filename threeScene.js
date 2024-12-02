@@ -47,6 +47,15 @@ function onWindowResize() {
 
 function onSelect() {
     // Handle object selection
+    if (loadedObject) {
+        const gamepad = controller.gamepad;
+        if (gamepad) {
+            const scaleChange = gamepad.axes[1] * 0.1; // Adjust the scale factor as needed
+            loadedObject.scale.x += scaleChange;
+            loadedObject.scale.y += scaleChange;
+            loadedObject.scale.z += scaleChange;
+        }
+    }
 }
 
 function onFileChange(event) {
