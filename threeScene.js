@@ -5,6 +5,7 @@ import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js
 let camera, scene, renderer;
 let controller;
 let loadedObject;
+let joystickInfo;
 
 init();
 animate();
@@ -33,6 +34,14 @@ function init() {
     controller.addEventListener('select', onSelect);
     scene.add(controller);
 
+    joystickInfo = document.createElement('div');
+    joystickInfo.style.position = 'absolute';
+    joystickInfo.style.top = '10px';
+    joystickInfo.style.left = '10px';
+    joystickInfo.style.color = 'white';
+    joystickInfo.style.fontSize = '20px';
+    document.body.appendChild(joystickInfo);
+
     window.addEventListener('resize', onWindowResize, false);
 
     const fileInput = document.getElementById('fileInput');
@@ -50,7 +59,7 @@ function onSelect() {
     if (loadedObject) {
         const gamepad = controller.gamepad;
         if (gamepad) {
-            const scaleChange = gamepad.axes[1] * 0.1; // Adjust the scale factor as needed
+            const scaleChange = gamepad.axes[1] * 0.01; // Adjust the scale factor as needed
             loadedObject.scale.x += scaleChange;
             loadedObject.scale.y += scaleChange;
             loadedObject.scale.z += scaleChange;
@@ -84,5 +93,9 @@ function animate() {
 }
 
 function render() {
+    if (controller && controller.gamepad) {
+        const gamepad = controller.gamepad;
+        joystickInfo.innerHTML = `Joystick X: ${gamepad.axes[0].toFixed(2)}<br>Joystick Y: ${gamepad.axes[1].toFixed(2)}`;
+    }
     renderer.render(scene, camera);
 }
