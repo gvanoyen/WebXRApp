@@ -31,7 +31,6 @@ function init() {
 
     controller = renderer.xr.getController(0);
     controller.addEventListener('select', onSelect);
-    controller.addEventListener('connected', onControllerConnected);
     scene.add(controller);
 
     window.addEventListener('resize', onWindowResize, false);
@@ -48,21 +47,6 @@ function onWindowResize() {
 
 function onSelect() {
     // Handle object selection
-}
-
-function onControllerConnected(event) {
-    const gamepad = event.data.gamepad;
-    if (gamepad) {
-        gamepad.addEventListener('axeschange', onThumbstickMove);
-    }
-}
-
-function onThumbstickMove(event) {
-    const axes = event.target.axes;
-    if (loadedObject) {
-        const scale = 1 + axes[1] * 0.1; // Adjust the scale factor as needed
-        loadedObject.scale.set(scale, scale, scale);
-    }
 }
 
 function onFileChange(event) {
@@ -89,5 +73,12 @@ function animate() {
 }
 
 function render() {
+    if (controller && controller.gamepad) {
+        const axes = controller.gamepad.axes;
+        if (loadedObject) {
+            const scale = 1 + axes[1] * 0.1; // Adjust the scale factor as needed
+            loadedObject.scale.set(scale, scale, scale);
+        }
+    }
     renderer.render(scene, camera);
 }
