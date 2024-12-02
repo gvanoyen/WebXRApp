@@ -75,9 +75,9 @@ function onSelectStart(event) {
         object.attach(controller);
     }
 
-    // Shrink the object to half its size
+    // Shrink the object to half its size, but not smaller than 0.01
     if (object) {
-        scale *= 0.5;
+        scale = Math.max(scale * 0.5, 0.01);
         object.scale.set(scale, scale, scale);
     }
 
