@@ -40,6 +40,9 @@ function init() {
     joystickInfo.style.left = '10px';
     joystickInfo.style.color = 'white';
     joystickInfo.style.fontSize = '20px';
+    joystickInfo.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    joystickInfo.style.padding = '10px';
+    joystickInfo.style.zIndex = '1000';
     document.body.appendChild(joystickInfo);
 
     window.addEventListener('resize', onWindowResize, false);
